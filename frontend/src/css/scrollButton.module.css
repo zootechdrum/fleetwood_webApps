@@ -1,0 +1,11 @@
+.btns {
+    position:fixed;
+    bottom: 20px;
+    right:30px;
+    border:none;
+    outline:none;
+    padding:10px;
+    border-radius:4px;
+    background: #154396;
+    color:white;
+}
