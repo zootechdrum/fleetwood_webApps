@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useRef, useEffect} from 'react';
 import NumberPad from '../components/NumberPad';
 import styles from '../css/homeScreen.module.css';
 import icon from '../css/fontIcon.module.css';
@@ -13,11 +13,11 @@ const LoginForm = ({
     handleSubmit, 
     password,
     userName,
-     numPadViewer,
-     showNumPad,
-     setUsername,
-     setPassword,
-     employeeId,
+    numPadViewer,
+    showNumPad,
+    setUsername,
+    setPassword,
+    employeeId,
     hardSetNumPadView}) => {
     const wrapperRef = useRef(null);
 
@@ -38,13 +38,13 @@ const LoginForm = ({
 
 return (
     <div  className={styles['login-card']}>
-        <Form ref={wrapperRef} className={styles['form-width']} onSubmit={handleSubmit}>
+        <Form ref={wrapperRef}  className={styles['form-width']} onSubmit={handleSubmit}>
             <Form.Group as={Row} className="text-center" controlId="exampleForm.ControlInput1">
                 <Form.Label column sm="12" className="text-center">SCAN EMPLOYEE BADGE:</Form.Label>
                 <Form.Control value={employeeId} onChange={numpadValueKeyPress} type="number" placeholder="Scan Badge"></Form.Control>
             </Form.Group>
             <FontAwesomeIcon className = {icon['fa-keyboards']} size='2x' icon={faKeyboard} onClick={numPadViewer} />
-            <NumberPad  display={showNumPad} getValue={numpadClick} />
+            <NumberPad display={showNumPad} getValue={numpadClick} />
             <p className="mt-3 text-center">OR</p> 
             <Form.Group as={Row} className="text-center" controlId="exampleForm.ControlInput1">
                 <Form.Label column sm="12" className="text-center">USER LOGIN:</Form.Label>

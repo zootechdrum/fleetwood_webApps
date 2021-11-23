@@ -1,6 +1,11 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Header from '../components/Header';
 import style from '../css/menu.module.css';
+import Session from 'react-session-api';
+
+import {
+  Link
+} from "react-router-dom";
 
 import {useNavigate} from 'react-router-dom';
     
@@ -11,21 +16,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const MenuScreen = () => {
       let navigate = useNavigate();
 
-    useEffect(() => {
-        fetch("/auth", {
-            method:'GET',
-            headers:{
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem("rememberMe")
-            }
-        })
-        .then(resp => resp.json())
-        .then(data => console.log(data));
-    },[])
-
-    const logoutUser = () => {
-     localStorage.setItem("rememberMe", "") 
-              navigate('/');
+      const logoutUser = () => {
+      navigate('/');
+      Session.clear()
     }
 
     return (
@@ -39,7 +32,7 @@ const MenuScreen = () => {
           <button class={style['menuItems']} type="">Shipping</button>  
         </div>
         <div className={style['btn-container']}>
-          <button class={style['menuItems']} type="">Receiving</button>  
+          <Link to="/receivingStage"><button class={style['menuItems']} type="">Receiving Stage</button></Link>  
         </div>
         <div className={style['btn-container']}>
           <button class={style['menuItems']} type="">Inventory</button>  

@@ -3,6 +3,7 @@ import grid from '../css/numberPad.module.css';
 
 
 const NumberPad = ({display, getValue, innerRef}) => {
+    
 return (
     <>
         {display ? 

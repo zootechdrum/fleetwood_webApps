@@ -1,19 +1,28 @@
-import React, {useState,useRef, useEffect} from 'react';
+import React, {useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import Header from '../components/Header';
 import LoginForm from '../components/Form';
+import AlertNotification from '../components/Alert';
+import Session from 'react-session-api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const HomeScreen = () => {
     let navigate = useNavigate();
 
-    const [userName, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [showNumPad, setShowNumPad] = useState(false);
-    const [employeeId, setEmployeeId] = useState('');
+    const [userName, setUsername]       = useState('');
+    const [password, setPassword]       = useState('');
+    const [showNumPad, setShowNumPad]   = useState(false);
+    const [employeeId, setEmployeeId]   = useState('');
+    const [showAlert, setShowAlert]     = useState(false);
+    const [textOnAlert, setTextOnAlert] = useState("");
 
     const handleSubmit = (evt) => {
         evt.preventDefault();
+        if(userName === "" && password === "" && employeeId === "") {
+            setTextOnAlert("Please fill out form to log in")
+            return setShowAlert(true);
+        }
+        setShowAlert(false);
         login();
     }
 
@@ -51,7 +60,8 @@ const HomeScreen = () => {
     async function login() {
       const params = {
           username: userName,
-          password:password
+          password:password,
+          employeeId:employeeId
       };
 
       let resp = await fetch("/login", {
@@ -61,20 +71,19 @@ const HomeScreen = () => {
       });
 
       resp = await resp.json();
-      setItemInLocalStorage(resp['token']);
-
-      if(resp['token']) {
-         navigate('/menu')
+      if(resp['token']){
+        Session.set("login", "success");
+        navigate('/menu')
+     } else {
+        setShowAlert(true);
+        setTextOnAlert(resp['error'])
      }
-    }
-
-    const setItemInLocalStorage = (token) => {
-        localStorage.setItem('rememberMe', token)
     }
 
     return (
         <>
             <Header />
+        {showAlert && <AlertNotification color={'danger'} text={textOnAlert} />}
             <LoginForm 
                 numpadValueKeyPress={numpadValueKeyPress} 
                 numpadClick={numpadValueClick} 

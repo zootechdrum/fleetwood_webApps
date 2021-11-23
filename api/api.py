@@ -7,7 +7,7 @@ from flask_jwt_extended import (
 )
 from flask.helpers import make_response
 import flask_praetorian
-from flask import Flask, jsonify, request
+from flask import Flask, json, jsonify, request
 
 from datetime import datetime, timedelta
 
@@ -36,32 +36,58 @@ connection = pypyodbc.connect(DB_URL)
 cursor = connection.cursor()
 
 @app.route('/login',  methods = ['POST'])
-def get_current_time():
-    json_data = request.get_json()
-    username  = json_data['username']
-    password  = json_data['password'] 
-    s = cursor.execute( ''' SELECT hr_employee.emp_id, hr_employee.emp_firstName, hr_employee.emp_lastName, Users.User_code, Users.Password
+def get_login_info():
+    json_data = request.get_json(force=True)
+
+    username    = json_data['username']
+    password    = json_data['password'] 
+    employeeId  = json_data['employeeId']
+    if (username and password):
+        findUser = cursor.execute( ''' SELECT hr_employee.emp_id, hr_employee.emp_firstName, hr_employee.emp_lastName, Users.User_code, Users.Password
 				FROM  hr_employee INNER JOIN Users ON hr_employee.emp_id = Users.UDF1 
 				WHERE user_code = ? AND Users.Password = ?
     ''', [username, password])
-    s = cursor.fetchone()
-    print(s)
-    
-    user = {
-        "id":s[0],
-        "username": s[1],
-        "password": s[2]
-    }
-    access_token = create_access_token(identity={"email":"cesarg@fleetwooudsa.com"})
-    return make_response(
-        jsonify({'token': access_token,'user': user}
-        ),
-        200
-    )
+        findUser = cursor.fetchone() 
+        if findUser == None:
+            return make_response(
+            jsonify({'error': 'User not found'})
+        )
+
+        user = {
+            "id":findUser[0],
+            "username": findUser[1],
+            "password": findUser[2]
+        }
+        access_token = create_access_token(identity={"email":"cesarg@fleetwooudsa.com"})
+        return make_response(
+            jsonify({'token': access_token,'user': user}
+            ),
+            200
+        )
+    else:
+        if(employeeId):
+            findUserById = cursor.execute("""SELECT hr_employee.emp_id, hr_employee.emp_firstName, hr_employee.emp_lastName, Users.User_code,Users.Password
+            FROM hr_employee INNER JOIN Users on hr_employee.emp_id = Users.UDF1 WHERE emp_id = ? """, [employeeId])
+            
+            findUserById = cursor.fetchone()
+            if findUserById == None:
+                return make_response(
+                    jsonify({'error': 'User not found'}), 404
+                )
+
+            access_token = create_access_token(identity={"email":"cesarg@fleetwooudsa.com"})
+            user = {
+                "id":findUserById[0]
+            }
+            return make_response(
+                jsonify({'token': access_token, 'user': user}), 202
+            )
+    return jsonify({'error': 'Missing username or password'}), 404
+
 
 @app.route('/auth', methods=['GET'])
 @jwt_required()
 def test():
     print('This is SPARTA')
-    return make_response(jsonify({'secrents':'companySecrets'}))
+    return make_response(jsonify({'success':"true"}))
 
